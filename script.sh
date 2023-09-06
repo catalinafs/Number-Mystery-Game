@@ -14,21 +14,7 @@ userOptions() {
     echo -e '\n 1) Play\n 2) Sign In\n 3) Top 5 Players\n 4) Exit\n'
 }
 
-# play() {
-#     random_number=$((($RANDOM % 100) + 1))
-#     echo 'you are playing'
-#     player_name='cfsuarez'
-#     mystery_number=0
-#     score=$(psql -h $DB_HOST -p $DB_PORT -d $DB_NAME -U $DB_USER -t -c "SELECT score FROM player WHERE username = '"$player_name"';")
-#     echo 'este es el score: '$score
-#     if [ "$score" -eq "$mystery_number" ]; then
-#         psql -h $DB_HOST -p $DB_PORT -d $DB_NAME -U $DB_USER -c "UPDATE player SET score=100 WHERE username = '"$player_name"';"
-#     fi
-#     # si existe el usuario puede jugar sino sale de el bucle de juego
-# }
-
 user_score() {
-    # Calculate the score based on the number of attempts
     if [ $attempts -le 5 ]; then
         score=100
     elif [ $attempts -le 10 ]; then
@@ -51,22 +37,22 @@ whileNotGuessing() {
         echo -n -e '\n Guess the Mystery Number between 1 and 100: '
         read user_guess
 
-        echo $attempts
+        # echo $attempts
+        attempts=$((attempts + 1))
 
         if [[ ! $user_guess =~ ^[0-9]+$ ]]; then
             echo -e "\n This "$user_guess" is not a valid option, please enter a valid number"
-            attempts=$((attempts + 1))
             continue
         fi
 
         if [ $user_guess -lt $mystery_number ]; then
-            echo $attempts
-            echo " The Mystery Number is higher"
+            # echo $attempts
+            echo -e "\n The Mystery Number is higher"
         elif [ $user_guess -gt $mystery_number ]; then
-            echo $attempts
-            echo " The Mystery Number is lower"
+            # echo $attempts
+            echo -e "\n The Mystery Number is lower"
         fi
-        attempts=$((attempts + 1))
+        # attempts=$((attempts + 1))
     done
 }
 
@@ -125,7 +111,7 @@ play() {
         echo '  3'
 
         clear
-        echo ' Good luck with the mystery number ;)'
+        echo -e '\n   Good luck with the mystery number ;)'
 
         mystery_number=$((($RANDOM % 100) + 1))
         attempts=1
@@ -134,11 +120,11 @@ play() {
         whileNotGuessing
 
         if [ $user_guess -eq $mystery_number ]; then
-            echo ' Congratulations Player '$username', you have found the Mystery Number ('$mystery_number') in '$attempts' attempts'
+            attempts=$((attempts - 1))
+            echo -e '\n  Congratulations Player '$username', you have found the Mystery Number ('$mystery_number') in '$attempts' attempts'
             user_score
-            echo $username
-            echo -e '\n  You score is '$score''
-            
+            echo -e '\n   You score is '$score'\n'
+
             psql -h $DB_HOST -p $DB_PORT -d $DB_NAME -U $DB_USER -c "UPDATE player SET score="$score", last_played=now() WHERE username = '"$username"';"
         else
             echo -e ' Player '$username' you have not find the mysterious number\n You can try again'
@@ -165,7 +151,7 @@ signInUser() {
 
 top5scores() {
     clear
-    echo -e '\n--------- Top 5 Players ---------\n'
+    echo -e '\n----------------- Top 5 Players -----------------\n'
     psql -h ${DB_HOST} -p ${DB_PORT} -d ${DB_NAME} -U ${DB_USER} -c "SELECT username, score, last_played FROM player ORDER BY score DESC LIMIT 5;"
 }
 
