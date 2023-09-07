@@ -138,7 +138,7 @@ signInUser() {
     echo -e '\n We are glad you want to register\n'
 
     # Query variables
-    echo -n '  Please enter a unique user( up to 30 characters ): '
+    echo -n '  Please enter a unique user(up to 30 characters): '
     read username
     echo ''
 
